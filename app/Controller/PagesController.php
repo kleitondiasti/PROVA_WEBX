@@ -77,9 +77,10 @@ class PagesController extends AppController {
 	public function ajax_response() {
 		$this->loadModel('Email');
 		$emails_listados = $this->Email->find('all', array(
-			'conditions' => array(
-				'1=1'
-			)
+			'limit' => '10',
+			'order' => array(
+				'Email.id DESC'
+			),
 		)
 		);
 		$this->set('emails_listados', $emails_listados);
