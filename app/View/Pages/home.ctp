@@ -13,9 +13,7 @@
             success : function(data) {
                $('#lista_emails').html(data);
             }
-        });
-
-        console.log('teste');        
+        });      
     }    
 
     $(function(){

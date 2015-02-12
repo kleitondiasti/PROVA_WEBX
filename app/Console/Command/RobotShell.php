@@ -7,34 +7,50 @@ class RobotShell extends AppShell {
 	public $uses = array('Url', 'Email');
 
     public function main() {
-        $urls = $this->Url->find('all', array(
-        	'conditions' => array(
-        		'Url.visited' => 'no'
-        		)
-        	)
-        );
+        $url_visited_all = 'no';
 
-        foreach ($urls as $url) {
-        	$conteudo = file_get_contents($url['Url']['url']);
-        	preg_match_all('/<a href=["\']?((?:.(?!["\']?\s+(?:\S+)=|[>"\']))+.)["\']?>/i', $conteudo, $resultados);
-        	preg_match_all('/\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i', $conteudo, $resultados_email);        	
+        while ($url_visited_all != 'yes') {
+            $urls = $this->Url->find('all', array(
+                'conditions' => array(
+                    'Url.visited' => 'no'
+                    )
+                )
+            );    
+                  
+            foreach ($urls as $url) {
+            	$conteudo = file_get_contents($url['Url']['url']);
+            	preg_match_all('/<a href=["\']?((?:.(?!["\']?\s+(?:\S+)=|[>"\']))+.)["\']?>/i', $conteudo, $resultados);
+            	preg_match_all('/\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i', $conteudo, $resultados_email);        	
 
-        	foreach ($resultados['1'] as $key => $resultado) {
-        		$url_resultado['Url'][$key]['url'] = $resultado;
-        		if ($this->Url->saveAll(array('url' => $url_resultado['Url'][$key]['url']))) {
-        			
-       			}
-        	}
+            	foreach ($resultados['1'] as $key => $resultado) {
+            		$url_resultado['Url'][$key]['url'] = $resultado;
+            		if ($this->Url->saveAll(array('url' => $url_resultado['Url'][$key]['url']))) {
+            			
+           			}
+            	}
 
-        	foreach ($resultados_email['0'] as $key => $resultado_email) {
-        		$url_resultado_email['Email'][$key]['email'] = $resultado_email;
-        		if ($this->Email->saveAll(array('email' => $url_resultado_email['Email'][$key]['email']))) {
-        			
-       			}
-        	}
+            	foreach ($resultados_email['0'] as $key => $resultado_email) {
+            		$url_resultado_email['Email'][$key]['email'] = $resultado_email;
+            		if ($this->Email->saveAll(array('email' => $url_resultado_email['Email'][$key]['email']))) {
+            			
+           			}
+            	}
 
-        	$this->Url->id = $url['Url']['id'];
-        	$this->Url->saveField('visited', 'yes');       	
+            	$this->Url->id = $url['Url']['id'];
+            	$this->Url->saveField('visited', 'yes');  
+
+            }
+
+            $urls_verifica = $this->Url->find('all', array(
+                'conditions' => array(
+                    'Url.visited' => 'no'
+                    )
+                )
+            );   
+
+            if (count($urls_verifica) == 0) {
+                $url_visited_all = 'yes';
+            }
         }
 
     }
